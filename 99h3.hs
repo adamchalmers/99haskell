@@ -1,4 +1,5 @@
 import System.Random
+import Data.List
 
 -- PREVIOUS 
 
@@ -60,3 +61,32 @@ powerset l = map reverse (ps l [])
         ps (s:rest) [] = ps rest [[s], []]
         ps (s:rest) output = ps rest ([(s:o) | o <- output] ++ output)
 
+-- Q27
+
+disjoint :: [a] -> [Int] -> [[[a]]]
+disjoint choices sizes =
+    djFull choices sizes [map (\_->[]) [0..length sizes - 1]]
+
+djFull :: [a] -> [Int] -> [[[a]]] -> [[[a]]]
+djFull choices sizes output = filter (\l -> length (concat l) >= sum sizes)  (dj choices sizes output)
+
+
+dj :: [a] -> [Int] -> [[[a]]] -> [[[a]]]
+dj (choice:choices) sizes output = dj choices sizes output'
+    where
+        output' = concat $ map (\o -> extend o sizes choice) output
+dj [] _ output = output
+
+extend :: [[a]] -> [Int] -> a -> [[[a]]]
+extend partial sizes val = map (\i->extend' partial i sizes val) [0..length sizes - 1]
+    where
+        extend' partial i sizes val = map (f i) (zip [0..length partial - 1] partial)
+        f i (j, subset) = if j == i then addToSubset val (sizes !! i) subset else subset
+
+addToSubset :: a -> Int -> [a] -> [a]
+addToSubset val size list = if size == (length list) then list else val:list
+
+-- Q28
+
+lsort :: [[a]] -> [[a]]
+lsort lists = sortOn length lists
