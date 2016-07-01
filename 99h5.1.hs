@@ -33,3 +33,14 @@ table n fn = map (\vals -> (header vals) ++ " || " ++ (sh (fn vals))) (rows n)
 
 printTable :: Int -> ([Bool] -> Bool) -> IO [()]
 printTable n fn = sequence $ map putStrLn (table n fn)
+
+-- Q49
+gray 1 = ["0", "1"]
+gray n = (f '0' $ prev) ++ (f '1' $ reverse $ prev)
+	where
+		prev = gray (n-1)
+		f bit = map ((:) bit)
+
+main = do {
+	putStrLn $ show $ length $ gray 21
+}
