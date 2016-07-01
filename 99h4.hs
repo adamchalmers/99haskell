@@ -1,4 +1,4 @@
-import Data.List
+import Data.List as List
 import Data.Map
 
 --Q31
@@ -19,7 +19,7 @@ phi m = length $ [ i | i <- [1..(m-1)], coprime m i]
 
 --Q35
 primeFactors :: Int -> [Int]
-primeFactors 1 = [1]
+primeFactors 1 = []
 primeFactors 0 = []
 primeFactors n = sort $ p:primeFactors(quot n p)
 	where
@@ -27,9 +27,16 @@ primeFactors n = sort $ p:primeFactors(quot n p)
 
 -- Q36
 factorize :: Int -> [(Int, Int)]
-factorize n = assocs $ Data.List.foldr acc (empty :: Map Int Int) (primeFactors n)
+factorize n = assocs $ List.foldr acc (empty :: Map Int Int) (primeFactors n)
 	where
 		acc k m = alter (\_->Just ((+1) $ findWithDefault 0 k m)) k m
 
 factorize' :: Int -> [(Int, Int)]
-factorize' n = Data.List.map (\xs -> (head xs, length xs)) (group $ primeFactors n)
+factorize' n = List.map (\xs -> (head xs, length xs)) (group $ primeFactors n)
+
+-- Q37
+phiFast n = product $ List.map (\(p, m) -> (p-1) * (p ^ (m-1))) (factorize' n)
+
+main = do {
+	putStrLn $ show $ phiFast 10090114
+}
