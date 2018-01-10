@@ -2,10 +2,8 @@ import System.Environment
 import Text.Printf
 
 -- Q1
-myLast :: [a] -> Maybe a
-myLast [] = Nothing
-myLast (x:[]) = Just x
-myLast (x:xs) = myLast xs
+myLast :: [a] -> a
+myLast = foldr1 (\_ x -> x)
 
 myLast' :: [a] -> a
 myLast' = head . reverse
@@ -16,11 +14,10 @@ lastButOne = head . tail . reverse
 
 -- Q3
 seek :: Int -> [a] -> a
-seek k xs = head $ map fn (filter predicate zlist)
-	where 
-		predicate (i,v) = i==k
-		zlist = zip [1..] xs
-		fn (i,v) = v
+seek k = head . (map fn) . (filter predicate) . (zip [1..])
+    where 
+        predicate (i,v) = i==k
+        fn (i,v) = v
 
 seek' :: Int -> [a] -> a
 seek' k xs = head $ drop (k-1) xs
@@ -36,9 +33,9 @@ myReverse = foldr (\val acc -> acc++[val]) []
 -- Q5, fast
 myReverse' :: [a] -> [a]
 myReverse' l = rev l []
-	where
-		rev [] reversed = reversed
-		rev (x:xs) reversed = rev xs (x:reversed)
+    where
+        rev [] partial = partial
+        rev (x:xs) partial = rev xs (x:partial)
 
 -- Q6
 isPalin :: (Eq a) => [a] -> Bool
@@ -60,30 +57,35 @@ compress [] = []
 compress [x] = [x]
 compress (x:(y:rest)) = if x==y then compress (y:rest) else x : compress (y:rest)
 
+compress' :: (Eq a) => [a] -> [a]
+compress' = foldr f []
+    where
+        f x []      = [x]
+        f x partial = 
+            if x == head partial
+                then partial
+                else x:partial
+
 -- Q9
 pack :: (Eq a) => [a] -> [[a]]
-pack xs = reverse $ pack' xs []
-	where
-		pack' :: (Eq a) => [a] -> [[a]] -> [[a]]
-		pack' [] output = output
-		pack' (x:xs) [] = pack' xs [[x]]
-		pack' (x:xs) ((h:t):rest) = 
-			if x==h 
-			then pack' xs ((x:[h]++t):rest)
-			else pack' xs ([x]:((h:t):rest))
+pack = foldr f []
+    where
+        f x [] = [[x]]
+        f x partial@(l:ls) = 
+            if x == head l 
+            then (x:l):ls
+            else [x]:partial
 
 -- Q10
 encode :: (Eq a) => [a] -> [(Int, a)]
-encode xs = map (\xs -> (length xs, head xs)) (pack xs)
+encode = map (\xs -> (length xs, head xs)) . pack
 
 -- Benchmarking
 
 bigString :: Int -> [Char]
 bigString n = foldr (\_ a -> a++alphabet) [] [0..n]
-	where
-		alphabet = "ABCDEFGHIJKLKMNOPQRSTUVWXYZ"
+    where
+        alphabet = "ABCDEFGHIJKLKMNOPQRSTUVWXYZ"
 
 main = do
-	printf "%s\n" (myReverse' (bigString 500))
-
--- pack ['a', 'a', 'a', 'a', 'b', 'c', 'c', 'a', 'a', 'd', 'e', 'e', 'e', 'e']
+    printf "%s\n" (myReverse' (bigString 500))
