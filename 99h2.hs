@@ -3,26 +3,25 @@ import Text.Printf
 -- Q12
 data Run a = Single a | Multiple Int a deriving (Show)
 unRun :: (Eq a) => [Run a] -> [a]
-unRun xs = reverse $ unRun' xs []
+unRun = foldr f []
     where
-        unRun' [] output = output
-        unRun' (Single x:xs) output = unRun' xs [x]++output
-        unRun' (Multiple n x:xs) output = unRun' xs ((take n (repeat x))++output)
+        f (Single x)     partial = x:partial
+        f (Multiple n x) partial = (replicate n x) ++ partial
 
 -- Q13
 run :: (Eq a) => [a] -> [Run a]
-run xs = reverse $ run' xs []
+run = foldr f []
     where
-        run' [] output = output
-        run' (x:xs) [] = run' xs [Single x]
-        run' (x:xs) (Single n:rest) = 
-            if x == n
-            then run' xs (Multiple 2 x:rest)
-            else run' xs (Single x:(Single n:rest))
-        run' (x:xs) (Multiple num n :rest) = 
-            if x == n
-            then run' xs (Multiple (num+1) x:rest)
-            else run' xs (Single x:(Multiple num n:rest))
+        f x [] = 
+            [Single x]
+        f x partial@(Single p:ps) = 
+            if x == p
+            then (Multiple 2 p):ps
+            else (Single x):partial
+        f x partial@(Multiple n p:ps) =
+            if x == p
+            then (Multiple (n+1) p):ps
+            else (Single x):partial
 
 -- Q14
 dupli :: [a] -> [a]
@@ -69,8 +68,7 @@ removeAt :: Int -> [a] -> (a, [a])
 removeAt n l = (gone, residue)
     where
         gone = l !! (n-1)
-        sl = slice l
-        residue = (sl 0 (n-1)) ++ (sl (n+1) (length l))
+        residue = (slice l 0 (n-1)) ++ (slice l (n+1) (length l))
 
 main = do
     printf "Hello, world.\n"

@@ -7,8 +7,7 @@ slice xs i j = [v | (n,v) <- (zip [1..] xs), n >= i && n <= j]
 removeAt n l = (gone, residue)
     where
         gone = l !! n
-        sl = slice l
-        residue = (sl 0 n) ++ (sl (n+2) (length l))
+        residue = (slice l 0 n) ++ (slice l (n+2) (length l))
 
 -- Q21
 insertAt :: a -> [a] -> Int -> [a]
